@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Dacorum IoD2025 - Deprivation Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; display: flex; flex-direction: column; font-family: 'Open Sans', Arial, sans-serif; overflow: hidden; }
+#header { flex-shrink: 0; background: #B42F63; color: #fff; padding: 9px 16px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+#header h1 { font-size: 14px; font-weight: 700; }
+#header p { font-size: 10.5px; opacity: .85; margin-top: 1px; }
+#badge { background: rgba(255,255,255,.2); padding: 3px 9px; border-radius: 12px; font-size: 10px; white-space: nowrap; }
+#stats-strip { flex-shrink: 0; background: #fff; border-bottom: 2px solid #E1BBC7; padding: 5px 14px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+.ss .v { font-size: 14px; font-weight: 700; color: #B42F63; }
+.ss .l { font-size: 9px; color: #666; white-space: nowrap; }
+.ss-note { margin-left: auto; font-size: 9px; color: #aaa; font-style: italic; line-height: 1.4; }
+#map { flex: 1; min-height: 0; width: 100%; }
+.legend { background: #fff; padding: 10px 13px; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,.18); font-size: 11px; min-width: 200px; }
+.legend h4 { font-size: 11px; font-weight: 700; color: #B42F63; margin-bottom: 6px; border-bottom: 2px solid #E1BBC7; padding-bottom: 4px; }
+.li { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(0,0,0,.12); }
+.ln { font-size: 10px; color: #333; }
+.legend hr { border: none; border-top: 1px solid #eee; margin: 5px 0; }
+.legend-note { font-size: 9px; color: #999; font-style: italic; margin-top: 4px; line-height: 1.4; }
+.filter-panel { background: #fff; padding: 9px 11px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.15); }
+.filter-panel h5 { font-size: 11px; font-weight: 700; color: #B42F63; margin-bottom: 6px; }
+.filter-panel .fb { display: flex; flex-direction: column; gap: 4px; }
+.filter-panel button { border: none; padding: 4px 10px; border-radius: 10px; font-size: 10px; cursor: pointer; font-family: inherit; color: #fff; font-weight: 600; opacity: .6; transition: opacity .2s; text-align: left; }
+.filter-panel button.active { opacity: 1; box-shadow: 0 1px 4px rgba(0,0,0,.25); }
+.leaflet-popup-content { margin: 0 !important; }
+.leaflet-popup-content-wrapper { border-radius: 8px !important; box-shadow: 0 4px 18px rgba(0,0,0,.22) !important; padding: 0 !important; }
+.pi { padding: 13px 15px; min-width: 215px; max-width: 270px; }
+.pi .area-name { font-size: 15px; font-weight: 700; color: #B42F63; margin-bottom: 2px; }
+.pi .area-parent { font-size: 10.5px; color: #888; margin-bottom: 2px; }
+.pi .lsoa-ref { font-size: 10px; color: #bbb; margin-bottom: 7px; }
+.pb { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 10px; font-weight: 700; color: #fff; margin-bottom: 9px; }
+.pi .st { font-size: 11px; margin-top: 3px; display: flex; justify-content: space-between; }
+.pi .st .lbl { color: #777; }
+.pi .st .val { font-weight: 700; color: #B42F63; }
+.pi hr { border: none; border-top: 1px solid #eee; margin: 7px 0; }
+.pf { font-size: 9px; color: #bbb; line-height: 1.4; }
+</style>
+</head>
+<body>
+<div id="header">
+  <div>
+    <h1>Dacorum &#8212; Indices of Deprivation 2025 (IoD2025)</h1>
+    <p>All 96 LSOAs &#183; Official ONS ward names &amp; positions &#183; Click any circle for detail</p>
+  </div>
+  <div id="badge">IoD2025 &#183; MHCLG &#183; 33,755 LSOAs England</div>
+</div>
+<div id="stats-strip">
+  <div class="ss"><div class="v">96</div><div class="l">LSOAs in Dacorum</div></div>
+  <div class="ss"><div class="v" style="color:#c0392b">4</div><div class="l">In most deprived 20%</div></div>
+  <div class="ss"><div class="v" style="color:#e05c00">8</div><div class="l">In most deprived 30%</div></div>
+  <div class="ss"><div class="v" style="color:#e8910a">19</div><div class="l">In most deprived 40%</div></div>
+  <div class="ss"><div class="v">3,663</div><div class="l">Worst area national rank</div></div>
+  <div class="ss"><div class="v">218th</div><div class="l">LA rank of 296 (England)</div></div>
+  <div class="ss-note">Positions &amp; ward names: official ONS data (Dec 2021/2022).</div>
+</div>
+<div id="map"></div>
+<script>
+const LSOA_DATA = [{"name": "Dacorum 013A", "code": "E01023345", "rank": 19126, "decile": 6, "pct": 56.7, "lat": 51.7608, "lng": -0.4502, "area": "Adeyfield East", "area_full": "Adeyfield East A", "sub": "A"}, {"name": "Dacorum 013B", "code": "E01023346", "rank": 10958, "decile": 4, "pct": 32.5, "lat": 51.7638, "lng": -0.4485, "area": "Adeyfield East", "area_full": "Adeyfield East B", "sub": "B"}, {"name": "Dacorum 013C", "code": "E01023347", "rank": 25085, "decile": 8, "pct": 74.3, "lat": 51.75977, "lng": -0.45158, "area": "Adeyfield East", "area_full": "Adeyfield East C", "sub": "C"}, {"name": "Dacorum 013D", "code": "E01023348", "rank": 6804, "decile": 3, "pct": 20.2, "lat": 51.75531, "lng": -0.44791, "area": "Adeyfield East", "area_full": "Adeyfield East D", "sub": "D"}, {"name": "Dacorum 015A", "code": "E01023349", "rank": 11690, "decile": 4, "pct": 34.6, "lat": 51.75179, "lng": -0.45149, "area": "Adeyfield West", "area_full": "Adeyfield West A", "sub": "A"}, {"name": "Dacorum 015B", "code": "E01023350", "rank": 16006, "decile": 5, "pct": 47.4, "lat": 51.7517, "lng": -0.45958, "area": "Adeyfield West", "area_full": "Adeyfield West B", "sub": "B"}, {"name": "Dacorum 015C", "code": "E01023351", "rank": 22161, "decile": 7, "pct": 65.7, "lat": 51.75639, "lng": -0.46, "area": "Adeyfield West", "area_full": "Adeyfield West C", "sub": "C"}, {"name": "Dacorum 004A", "code": "E01023352", "rank": 24776, "decile": 8, "pct": 73.4, "lat": 51.80138, "lng": -0.61475, "area": "Aldbury and Wigginton", "area_full": "Aldbury and Wigginton A", "sub": "A"}, {"name": "Dacorum 018B", "code": "E01023354", "rank": 31126, "decile": 10, "pct": 92.2, "lat": 51.74018, "lng": -0.48069, "area": "Apsley and Corner Hall", "area_full": "Apsley and Corner Hall B", "sub": "B"}, {"name": "Dacorum 006A", "code": "E01023355", "rank": 29627, "decile": 9, "pct": 87.8, "lat": 51.77572, "lng": -0.52895, "area": "Ashridge", "area_full": "Ashridge A", "sub": "A"}, {"name": "Dacorum 006B", "code": "E01023356", "rank": 17653, "decile": 6, "pct": 52.3, "lat": 51.80609, "lng": -0.55112, "area": "Ashridge", "area_full": "Ashridge B", "sub": "B"}, {"name": "Dacorum 020A", "code": "E01023357", "rank": 9923, "decile": 3, "pct": 29.4, "lat": 51.74448, "lng": -0.45266, "area": "Bennetts End", "area_full": "Bennetts End A", "sub": "A"}, {"name": "Dacorum 020B", "code": "E01023358", "rank": 10312, "decile": 4, "pct": 30.5, "lat": 51.74244, "lng": -0.44425, "area": "Leverstock Green", "area_full": "Leverstock Green B", "sub": "B"}, {"name": "Dacorum 020C", "code": "E01023359", "rank": 16252, "decile": 5, "pct": 48.1, "lat": 51.73841, "lng": -0.4511, "area": "Leverstock Green", "area_full": "Leverstock Green C", "sub": "C"}, {"name": "Dacorum 020D", "code": "E01023360", "rank": 24191, "decile": 8, "pct": 71.7, "lat": 51.73792, "lng": -0.45741, "area": "Bennetts End", "area_full": "Bennetts End D", "sub": "D"}, {"name": "Dacorum 009A", "code": "E01023361", "rank": 28097, "decile": 9, "pct": 83.2, "lat": 51.76159, "lng": -0.56258, "area": "Berkhamsted Castle", "area_full": "Berkhamsted Castle A", "sub": "A"}, {"name": "Dacorum 009B", "code": "E01023362", "rank": 33523, "decile": 10, "pct": 99.3, "lat": 51.7597, "lng": -0.54193, "area": "Berkhamsted Castle", "area_full": "Berkhamsted Castle B", "sub": "B"}, {"name": "Dacorum 009C", "code": "E01023363", "rank": 33203, "decile": 10, "pct": 98.4, "lat": 51.77047, "lng": -0.57954, "area": "Berkhamsted Castle", "area_full": "Berkhamsted Castle C", "sub": "C"}, {"name": "Dacorum 009D", "code": "E01023364", "rank": 33738, "decile": 10, "pct": 99.9, "lat": 51.76699, "lng": -0.57048, "area": "Berkhamsted Castle", "area_full": "Berkhamsted Castle D", "sub": "D"}, {"name": "Dacorum 014A", "code": "E01023365", "rank": 24110, "decile": 8, "pct": 71.4, "lat": 51.7575, "lng": -0.56505, "area": "Berkhamsted East", "area_full": "Berkhamsted East A", "sub": "A"}, {"name": "Dacorum 014B", "code": "E01023366", "rank": 19640, "decile": 6, "pct": 58.2, "lat": 51.75411, "lng": -0.56021, "area": "Berkhamsted East", "area_full": "Berkhamsted East B", "sub": "B"}, {"name": "Dacorum 014C", "code": "E01023367", "rank": 33650, "decile": 10, "pct": 99.7, "lat": 51.74636, "lng": -0.55377, "area": "Berkhamsted East", "area_full": "Berkhamsted East C", "sub": "C"}, {"name": "Dacorum 014D", "code": "E01023368", "rank": 32338, "decile": 10, "pct": 95.8, "lat": 51.76008, "lng": -0.57033, "area": "Berkhamsted East", "area_full": "Berkhamsted East D", "sub": "D"}, {"name": "Dacorum 012A", "code": "E01023369", "rank": 12780, "decile": 4, "pct": 37.9, "lat": 51.76532, "lng": -0.58499, "area": "Berkhamsted West", "area_full": "Berkhamsted West A", "sub": "A"}, {"name": "Dacorum 012B", "code": "E01023370", "rank": 28651, "decile": 9, "pct": 84.9, "lat": 51.7634, "lng": -0.57711, "area": "Berkhamsted West", "area_full": "Berkhamsted West B", "sub": "B"}, {"name": "Dacorum 012C", "code": "E01023371", "rank": 31252, "decile": 10, "pct": 92.6, "lat": 51.75735, "lng": -0.58569, "area": "Berkhamsted West", "area_full": "Berkhamsted West C", "sub": "C"}, {"name": "Dacorum 012D", "code": "E01023372", "rank": 33683, "decile": 10, "pct": 99.8, "lat": 51.75423, "lng": -0.57667, "area": "Berkhamsted West", "area_full": "Berkhamsted West D", "sub": "D"}, {"name": "Dacorum 021A", "code": "E01023373", "rank": 28241, "decile": 9, "pct": 83.7, "lat": 51.72555, "lng": -0.53494, "area": "Bovingdon, Flaunden and Chipperfield", "area_full": "Bovingdon, Flaunden and Chipperfield A", "sub": "A"}, {"name": "Dacorum 021B", "code": "E01023374", "rank": 27546, "decile": 9, "pct": 81.6, "lat": 51.71896, "lng": -0.50798, "area": "Bovingdon, Flaunden and Chipperfield", "area_full": "Bovingdon, Flaunden and Chipperfield B", "sub": "B"}, {"name": "Dacorum 021C", "code": "E01023375", "rank": 24220, "decile": 8, "pct": 71.8, "lat": 51.70775, "lng": -0.49237, "area": "Bovingdon, Flaunden and Chipperfield", "area_full": "Bovingdon, Flaunden and Chipperfield C", "sub": "C"}, {"name": "Dacorum 021D", "code": "E01023376", "rank": 23505, "decile": 7, "pct": 69.6, "lat": 51.71945, "lng": -0.53929, "area": "Bovingdon, Flaunden and Chipperfield", "area_full": "Bovingdon, Flaunden and Chipperfield D", "sub": "D"}, {"name": "Dacorum 021E", "code": "E01023377", "rank": 27705, "decile": 9, "pct": 82.1, "lat": 51.69895, "lng": -0.53882, "area": "Bovingdon, Flaunden and Chipperfield", "area_full": "Bovingdon, Flaunden and Chipperfield E", "sub": "E"}, {"name": "Dacorum 021F", "code": "E01023378", "rank": 30247, "decile": 9, "pct": 89.6, "lat": 51.73507, "lng": -0.49495, "area": "Bovingdon, Flaunden and Chipperfield", "area_full": "Bovingdon, Flaunden and Chipperfield F", "sub": "F"}, {"name": "Dacorum 018C", "code": "E01023379", "rank": 30749, "decile": 10, "pct": 91.1, "lat": 51.74625, "lng": -0.49007, "area": "Boxmoor", "area_full": "Boxmoor C", "sub": "C"}, {"name": "Dacorum 018D", "code": "E01023380", "rank": 31919, "decile": 10, "pct": 94.6, "lat": 51.75376, "lng": -0.4829, "area": "Boxmoor", "area_full": "Boxmoor D", "sub": "D"}, {"name": "Dacorum 018E", "code": "E01023381", "rank": 33747, "decile": 10, "pct": 100.0, "lat": 51.75141, "lng": -0.48961, "area": "Boxmoor", "area_full": "Boxmoor E", "sub": "E"}, {"name": "Dacorum 018F", "code": "E01023382", "rank": 23763, "decile": 8, "pct": 70.4, "lat": 51.74731, "lng": -0.48103, "area": "Boxmoor", "area_full": "Boxmoor F", "sub": "F"}, {"name": "Dacorum 016A", "code": "E01023383", "rank": 22484, "decile": 7, "pct": 66.6, "lat": 51.75241, "lng": -0.51374, "area": "Chaulden and Warners End", "area_full": "Chaulden and Warners End A", "sub": "A"}, {"name": "Dacorum 016B", "code": "E01023384", "rank": 14380, "decile": 5, "pct": 42.6, "lat": 51.74974, "lng": -0.49911, "area": "Chaulden and Warners End", "area_full": "Chaulden and Warners End B", "sub": "B"}, {"name": "Dacorum 016C", "code": "E01023385", "rank": 21243, "decile": 7, "pct": 62.9, "lat": 51.7563, "lng": -0.49962, "area": "Chaulden and Warners End", "area_full": "Chaulden and Warners End C", "sub": "C"}, {"name": "Dacorum 019A", "code": "E01023386", "rank": 16462, "decile": 5, "pct": 48.8, "lat": 51.74303, "lng": -0.465, "area": "Apsley and Corner Hall", "area_full": "Apsley and Corner Hall A", "sub": "A"}, {"name": "Dacorum 019B", "code": "E01023387", "rank": 12557, "decile": 4, "pct": 37.2, "lat": 51.74632, "lng": -0.46114, "area": "Apsley and Corner Hall", "area_full": "Apsley and Corner Hall B", "sub": "B"}, {"name": "Dacorum 019C", "code": "E01023388", "rank": 19416, "decile": 6, "pct": 57.5, "lat": 51.74461, "lng": -0.46878, "area": "Apsley and Corner Hall", "area_full": "Apsley and Corner Hall C", "sub": "C"}, {"name": "Dacorum 019D", "code": "E01023389", "rank": 30094, "decile": 9, "pct": 89.2, "lat": 51.74043, "lng": -0.46012, "area": "Bennetts End", "area_full": "Bennetts End D", "sub": "D"}, {"name": "Dacorum 010A", "code": "E01023390", "rank": 14366, "decile": 5, "pct": 42.6, "lat": 51.7655, "lng": -0.48447, "area": "Gadebridge", "area_full": "Gadebridge A", "sub": "A"}, {"name": "Dacorum 010B", "code": "E01023391", "rank": 21991, "decile": 7, "pct": 65.1, "lat": 51.76054, "lng": -0.48265, "area": "Gadebridge", "area_full": "Gadebridge B", "sub": "B"}, {"name": "Dacorum 011A", "code": "E01023392", "rank": 13356, "decile": 4, "pct": 39.6, "lat": 51.76667, "lng": -0.49458, "area": "Gadebridge", "area_full": "Gadebridge A", "sub": "A"}, {"name": "Dacorum 007A", "code": "E01023393", "rank": 8319, "decile": 3, "pct": 24.6, "lat": 51.77256, "lng": -0.45428, "area": "Grovehill", "area_full": "Grovehill A", "sub": "A"}, {"name": "Dacorum 007B", "code": "E01023394", "rank": 17825, "decile": 6, "pct": 52.8, "lat": 51.77784, "lng": -0.45626, "area": "Grovehill", "area_full": "Grovehill B", "sub": "B"}, {"name": "Dacorum 007C", "code": "E01023395", "rank": 10925, "decile": 4, "pct": 32.4, "lat": 51.77545, "lng": -0.44806, "area": "Grovehill", "area_full": "Grovehill C", "sub": "C"}, {"name": "Dacorum 007D", "code": "E01023396", "rank": 18132, "decile": 6, "pct": 53.7, "lat": 51.77033, "lng": -0.46335, "area": "Grovehill", "area_full": "Grovehill D", "sub": "D"}, {"name": "Dacorum 007E", "code": "E01023397", "rank": 6608, "decile": 2, "pct": 19.6, "lat": 51.77404, "lng": -0.46608, "area": "Grovehill", "area_full": "Grovehill E", "sub": "E"}, {"name": "Dacorum 010C", "code": "E01023399", "rank": 13606, "decile": 5, "pct": 40.3, "lat": 51.76488, "lng": -0.47509, "area": "Hemel Hempstead Town", "area_full": "Hemel Hempstead Town C", "sub": "C"}, {"name": "Dacorum 015E", "code": "E01023400", "rank": 13817, "decile": 5, "pct": 40.9, "lat": 51.75533, "lng": -0.46873, "area": "Hemel Hempstead Town", "area_full": "Hemel Hempstead Town E", "sub": "E"}, {"name": "Dacorum 008A", "code": "E01023401", "rank": 9922, "decile": 3, "pct": 29.4, "lat": 51.75995, "lng": -0.46463, "area": "Highfield", "area_full": "Highfield A", "sub": "A"}, {"name": "Dacorum 008B", "code": "E01023402", "rank": 14237, "decile": 5, "pct": 42.2, "lat": 51.76713, "lng": -0.45629, "area": "Highfield", "area_full": "Highfield B", "sub": "B"}, {"name": "Dacorum 008C", "code": "E01023403", "rank": 10832, "decile": 4, "pct": 32.1, "lat": 51.76412, "lng": -0.45335, "area": "Highfield", "area_full": "Highfield C", "sub": "C"}, {"name": "Dacorum 008D", "code": "E01023404", "rank": 3663, "decile": 2, "pct": 10.9, "lat": 51.76346, "lng": -0.46927, "area": "Hemel Hempstead Town", "area_full": "Hemel Hempstead Town D", "sub": "D"}, {"name": "Dacorum 008E", "code": "E01023405", "rank": 6374, "decile": 2, "pct": 18.9, "lat": 51.76573, "lng": -0.46434, "area": "Highfield", "area_full": "Highfield E", "sub": "E"}, {"name": "Dacorum 022A", "code": "E01023406", "rank": 24867, "decile": 8, "pct": 73.7, "lat": 51.70571, "lng": -0.45766, "area": "Kings Langley", "area_full": "Kings Langley A", "sub": "A"}, {"name": "Dacorum 022B", "code": "E01023407", "rank": 29388, "decile": 9, "pct": 87.1, "lat": 51.72528, "lng": -0.46689, "area": "Kings Langley", "area_full": "Kings Langley B", "sub": "B"}, {"name": "Dacorum 022C", "code": "E01023408", "rank": 32698, "decile": 10, "pct": 96.9, "lat": 51.7138, "lng": -0.46417, "area": "Kings Langley", "area_full": "Kings Langley C", "sub": "C"}, {"name": "Dacorum 017A", "code": "E01023409", "rank": 18364, "decile": 6, "pct": 54.4, "lat": 51.75326, "lng": -0.42978, "area": "Leverstock Green", "area_full": "Leverstock Green A", "sub": "A"}, {"name": "Dacorum 017B", "code": "E01023410", "rank": 32958, "decile": 10, "pct": 97.6, "lat": 51.74777, "lng": -0.42721, "area": "Leverstock Green", "area_full": "Leverstock Green B", "sub": "B"}, {"name": "Dacorum 017C", "code": "E01023411", "rank": 18133, "decile": 6, "pct": 53.7, "lat": 51.74978, "lng": -0.44189, "area": "Leverstock Green", "area_full": "Leverstock Green C", "sub": "C"}, {"name": "Dacorum 017D", "code": "E01023412", "rank": 33717, "decile": 10, "pct": 99.9, "lat": 51.74733, "lng": -0.4403, "area": "Leverstock Green", "area_full": "Leverstock Green D", "sub": "D"}, {"name": "Dacorum 017E", "code": "E01023413", "rank": 19129, "decile": 6, "pct": 56.7, "lat": 51.74414, "lng": -0.43546, "area": "Leverstock Green", "area_full": "Leverstock Green E", "sub": "E"}, {"name": "Dacorum 020E", "code": "E01023414", "rank": 22626, "decile": 7, "pct": 67.0, "lat": 51.73152, "lng": -0.45384, "area": "Nash Mills", "area_full": "Nash Mills E", "sub": "E"}, {"name": "Dacorum 020F", "code": "E01023415", "rank": 27312, "decile": 9, "pct": 80.9, "lat": 51.73532, "lng": -0.44347, "area": "Nash Mills", "area_full": "Nash Mills F", "sub": "F"}, {"name": "Dacorum 006C", "code": "E01023416", "rank": 30203, "decile": 9, "pct": 89.5, "lat": 51.786, "lng": -0.58102, "area": "Northchurch", "area_full": "Northchurch C", "sub": "C"}, {"name": "Dacorum 006D", "code": "E01023417", "rank": 25234, "decile": 8, "pct": 74.8, "lat": 51.76609, "lng": -0.59102, "area": "Northchurch", "area_full": "Northchurch D", "sub": "D"}, {"name": "Dacorum 003A", "code": "E01023418", "rank": 11860, "decile": 4, "pct": 35.1, "lat": 51.79734, "lng": -0.66234, "area": "Tring Central", "area_full": "Tring Central A", "sub": "A"}, {"name": "Dacorum 003B", "code": "E01023419", "rank": 26255, "decile": 8, "pct": 77.8, "lat": 51.80856, "lng": -0.66244, "area": "Tring Central", "area_full": "Tring Central B", "sub": "B"}, {"name": "Dacorum 003C", "code": "E01023420", "rank": 32050, "decile": 10, "pct": 94.9, "lat": 51.79609, "lng": -0.66548, "area": "Tring Central", "area_full": "Tring Central C", "sub": "C"}, {"name": "Dacorum 004B", "code": "E01023421", "rank": 32737, "decile": 10, "pct": 97.0, "lat": 51.8062, "lng": -0.65162, "area": "Tring East", "area_full": "Tring East B", "sub": "B"}, {"name": "Dacorum 004C", "code": "E01023422", "rank": 33505, "decile": 10, "pct": 99.3, "lat": 51.77888, "lng": -0.65093, "area": "Tring East", "area_full": "Tring East C", "sub": "C"}, {"name": "Dacorum 002A", "code": "E01023423", "rank": 30321, "decile": 9, "pct": 89.8, "lat": 51.78801, "lng": -0.67761, "area": "Tring West and Rural", "area_full": "Tring West and Rural A", "sub": "A"}, {"name": "Dacorum 002B", "code": "E01023424", "rank": 22866, "decile": 7, "pct": 67.7, "lat": 51.83671, "lng": -0.70215, "area": "Tring West and Rural", "area_full": "Tring West and Rural B", "sub": "B"}, {"name": "Dacorum 002C", "code": "E01023425", "rank": 33410, "decile": 10, "pct": 99.0, "lat": 51.79611, "lng": -0.67379, "area": "Tring West and Rural", "area_full": "Tring West and Rural C", "sub": "C"}, {"name": "Dacorum 002D", "code": "E01023426", "rank": 26491, "decile": 8, "pct": 78.5, "lat": 51.79121, "lng": -0.66271, "area": "Tring West and Rural", "area_full": "Tring West and Rural D", "sub": "D"}, {"name": "Dacorum 011B", "code": "E01023427", "rank": 14676, "decile": 5, "pct": 43.5, "lat": 51.76022, "lng": -0.49689, "area": "Chaulden and Warners End", "area_full": "Chaulden and Warners End B", "sub": "B"}, {"name": "Dacorum 011C", "code": "E01023428", "rank": 26459, "decile": 8, "pct": 78.4, "lat": 51.76538, "lng": -0.50763, "area": "Chaulden and Warners End", "area_full": "Chaulden and Warners End C", "sub": "C"}, {"name": "Dacorum 011D", "code": "E01023429", "rank": 13773, "decile": 5, "pct": 40.8, "lat": 51.75582, "lng": -0.49301, "area": "Chaulden and Warners End", "area_full": "Chaulden and Warners End D", "sub": "D"}, {"name": "Dacorum 001A", "code": "E01023430", "rank": 24403, "decile": 8, "pct": 72.3, "lat": 51.83291, "lng": -0.43513, "area": "Watling", "area_full": "Watling A", "sub": "A"}, {"name": "Dacorum 001B", "code": "E01023431", "rank": 17402, "decile": 6, "pct": 51.6, "lat": 51.80225, "lng": -0.46892, "area": "Watling", "area_full": "Watling B", "sub": "B"}, {"name": "Dacorum 001C", "code": "E01023432", "rank": 25946, "decile": 8, "pct": 76.9, "lat": 51.83047, "lng": -0.46218, "area": "Watling", "area_full": "Watling C", "sub": "C"}, {"name": "Dacorum 001D", "code": "E01023433", "rank": 17609, "decile": 6, "pct": 52.2, "lat": 51.83585, "lng": -0.46355, "area": "Watling", "area_full": "Watling D", "sub": "D"}, {"name": "Dacorum 005A", "code": "E01023434", "rank": 17248, "decile": 6, "pct": 51.1, "lat": 51.77585, "lng": -0.43835, "area": "Woodhall Farm", "area_full": "Woodhall Farm A", "sub": "A"}, {"name": "Dacorum 005B", "code": "E01023435", "rank": 16948, "decile": 6, "pct": 50.2, "lat": 51.7801, "lng": -0.44033, "area": "Woodhall Farm", "area_full": "Woodhall Farm B", "sub": "B"}, {"name": "Dacorum 005C", "code": "E01023436", "rank": 28271, "decile": 9, "pct": 83.8, "lat": 51.77922, "lng": -0.44561, "area": "Woodhall Farm", "area_full": "Woodhall Farm C", "sub": "C"}, {"name": "Dacorum 005D", "code": "E01023437", "rank": 5234, "decile": 2, "pct": 15.5, "lat": 51.77799, "lng": -0.43298, "area": "Woodhall Farm", "area_full": "Woodhall Farm D", "sub": "D"}, {"name": "Dacorum 018G", "code": "E01033022", "rank": 18279, "decile": 6, "pct": 54.2, "lat": 51.73361, "lng": -0.46121, "area": "Apsley and Corner Hall", "area_full": "Apsley and Corner Hall G", "sub": "G"}, {"name": "Dacorum 018H", "code": "E01033023", "rank": 17441, "decile": 6, "pct": 51.7, "lat": 51.73746, "lng": -0.46774, "area": "Apsley and Corner Hall", "area_full": "Apsley and Corner Hall H", "sub": "H"}, {"name": "Dacorum 015F", "code": "E01035562", "rank": 13367, "decile": 4, "pct": 39.6, "lat": 51.75208, "lng": -0.47588, "area": "Boxmoor", "area_full": "Boxmoor F", "sub": "F"}, {"name": "Dacorum 015G", "code": "E01035563", "rank": 13149, "decile": 4, "pct": 39.0, "lat": 51.75037, "lng": -0.46832, "area": "Hemel Hempstead Town", "area_full": "Hemel Hempstead Town G", "sub": "G"}, {"name": "Dacorum 015H", "code": "E01035564", "rank": 25119, "decile": 8, "pct": 74.4, "lat": 51.7465, "lng": -0.47565, "area": "Boxmoor", "area_full": "Boxmoor H", "sub": "H"}];
+var COLOURS = {1:"#7b1c1c",2:"#c0392b",3:"#e05c00",4:"#e8910a",5:"#c9b800",6:"#6aaa1e",7:"#27ae60",8:"#1a7a48",9:"#1a5276",10:"#0d3349"};
+var LABELS = {
+  1:"Most deprived 0-10% nationally",
+  2:"Highly deprived 10-20% nationally",
+  3:"Deprived 20-30% nationally",
+  4:"Deprived 30-40% nationally",
+  5:"Moderate 40-50%",
+  6:"Moderate 50-60%",
+  7:"Low deprivation 60-70%",
+  8:"Low deprivation 70-80%",
+  9:"Low deprivation 80-90%",
+  10:"Least deprived 90-100%"
+};
+
+var map = L.map("map", {center:[51.761, -0.505], zoom:11});
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "Map data &copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors | Data: ONS",
+  maxZoom: 19
+}).addTo(map);
+
+function rankToRadius(rank) {
+  return Math.max(130, Math.round(420 * (1 - (rank / 33755) * 0.68)));
+}
+
+function makePopup(lsoa) {
+  var col = COLOURS[lsoa.decile];
+  var moreDep = (100 - lsoa.pct).toFixed(1);
+  var html = "<div class='pi'>";
+  html += "<div class='area-name'>" + lsoa.area_full + "</div>";
+  html += "<div class='area-parent'>" + lsoa.area + " ward, Dacorum</div>";
+  html += "<div class='lsoa-ref'>LSOA: " + lsoa.name + " | Code: " + lsoa.code + "</div>";
+  html += "<span class='pb' style='background:" + col + "'>" + LABELS[lsoa.decile] + "</span>";
+  html += "<div class='st'><span class='lbl'>National rank</span><span class='val'>" + lsoa.rank.toLocaleString() + " of 33,755</span></div>";
+  html += "<div class='st'><span class='lbl'>IMD Decile</span><span class='val'>" + lsoa.decile + " of 10</span></div>";
+  html += "<div class='st'><span class='lbl'>More deprived than</span><span class='val'>" + moreDep + "% of England</span></div>";
+  html += "<hr><div class='pf'>IoD2025 - MHCLG | ONS centroids &amp; ward lookup (Dec 2021/2022)</div>";
+  html += "</div>";
+  return html;
+}
+
+var circles = [];
+LSOA_DATA.forEach(function(lsoa) {
+  var col = COLOURS[lsoa.decile];
+  var circle = L.circle([lsoa.lat, lsoa.lng], {
+    color: col, fillColor: col, fillOpacity: 0.55, weight: 1.5,
+    radius: rankToRadius(lsoa.rank)
+  }).addTo(map);
+  circle.bindPopup(makePopup(lsoa), {maxWidth: 290});
+  circles.push({circle: circle, lsoa: lsoa});
+});
+
+var dctPopup = "<div class='pi'>";
+dctPopup += "<div class='area-name'>Dacorum Community Trust</div>";
+dctPopup += "<div class='lsoa-ref'>Registered Charity No. 272759 &#183; Founded 1976</div>";
+dctPopup += "<p style='font-size:11px;color:#555;line-height:1.5;margin-top:6px'>Serving all of Dacorum, with the highest concentration of crisis referrals from the most deprived wards shown in red and orange.</p>";
+dctPopup += "<div class='st' style='margin-top:7px'><span class='lbl'>Referrals from public &amp; voluntary sector</span><span class='val'>85%+</span></div>";
+dctPopup += "<hr><div class='pf'>King&#39;s Award for Voluntary Service 2024</div>";
+dctPopup += "</div>";
+
+L.circleMarker([51.748, -0.455], {radius:10, color:"#fff", fillColor:"#B42F63", fillOpacity:1, weight:3})
+  .addTo(map)
+  .bindPopup(dctPopup, {maxWidth: 290});
+
+var legend = L.control({position: "bottomright"});
+legend.onAdd = function() {
+  var div = L.DomUtil.create("div", "legend");
+  var h = "<h4>IoD2025 Deprivation Decile</h4>";
+  for (var d = 1; d <= 10; d++) {
+    h += "<div class='li'><div class='dot' style='background:" + COLOURS[d] + "'></div>";
+    h += "<span class='ln'>D" + d + " - " + LABELS[d] + "</span></div>";
+  }
+  h += "<hr><div class='legend-note'>Decile 1 = most deprived 10% in England<br>Larger circles = more deprived<br>Click any circle for ward name &amp; detail</div>";
+  div.innerHTML = h;
+  return div;
+};
+legend.addTo(map);
+
+var filterCtrl = L.control({position: "topright"});
+filterCtrl.onAdd = function() {
+  var div = L.DomUtil.create("div", "filter-panel");
+  L.DomEvent.disableClickPropagation(div);
+  var filters = [
+    {label: "Show all",             deciles: null,      color: "#555"},
+    {label: "Most deprived (D1-3)", deciles: [1,2,3],   color: "#c0392b"},
+    {label: "At risk (D4-5)",       deciles: [4,5],     color: "#e8910a"},
+    {label: "Mid range (D6-7)",     deciles: [6,7],     color: "#27ae60"},
+    {label: "Affluent (D8-10)",     deciles: [8,9,10],  color: "#1a5276"}
+  ];
+  div.innerHTML = "<h5>Filter by band</h5><div class='fb' id='fbInner'></div>";
+  var fb = div.querySelector("#fbInner");
+  filters.forEach(function(f) {
+    var btn = document.createElement("button");
+    btn.textContent = f.label;
+    btn.style.background = f.color;
+    if (!f.deciles) btn.classList.add("active");
+    btn.addEventListener("click", function() {
+      fb.querySelectorAll("button").forEach(function(b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      circles.forEach(function(item) {
+        var show = !f.deciles || f.deciles.indexOf(item.lsoa.decile) !== -1;
+        item.circle.setStyle(show
+          ? {opacity: 1, fillOpacity: 0.55}
+          : {opacity: 0.07, fillOpacity: 0.04});
+      });
+    });
+    fb.appendChild(btn);
+  });
+  return div;
+};
+filterCtrl.addTo(map);
+</script>
+</body>
+</html>
